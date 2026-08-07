@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { spotify } from "../spotify";
+import { Link } from "react-router-dom";
 
 export default function TopTracks() {
   const [topTracks, setTopTracks] = useState([]);
@@ -17,18 +18,23 @@ export default function TopTracks() {
       <h3>Top Tracks:</h3>
       <div className="track-list">
         {topTracks.map(track => (
-          <div
+          <Link
             className="track-row"
             key={track.id}
+            to={`/track/${track.id}`}
           >
             {track.album.images?.[0]?.url && (
-              <img src={track.album.images[0].url} alt={track.name} className='track-image' />
+              <img
+                src={track.album.images[0].url}
+                alt={track.name}
+                className='track-image'
+              />
             )}
             <div className="track-info">
               <h3 className="track-title">{track.name}</h3>
               <span className="track-artist">{track.artists[0].name}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </>

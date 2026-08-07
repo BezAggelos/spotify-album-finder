@@ -29,16 +29,14 @@ function App() {
 
   return (
     <>
-
       {isLoggedIn ? (
         <Dashboard />
       ) : (
         <main>
-          <h1>Welcome to Album Finder</h1>
+          <h1>Welcome to Spotify Stats</h1>
           <Login onLogin={handleLogin} />
         </main>
       )}
-
     </>
   )
 }
