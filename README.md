@@ -1,18 +1,51 @@
-# React + Vite
+# 🎵 Album Finder (Spotify Dashboard)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based React application that integrates with the Spotify Web API to analyze user profiles, fetch listening statistics, and search the Spotify catalog. 
 
-Currently, two official plugins are available:
+Built as a personal practice project to master React hooks, component architecture, and API integration.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Features
+* **Secure Authentication:** Uses Spotify's Authorization Code with PKCE flow for a secure, client-side login without needing a backend server.
+* **User Profile:** Fetches and displays the logged-in user's profile information and avatar.
+* **Top Artists & Tracks:** Visualizes the user's most listened to artists and tracks over the long term.
+* **Album Search:** Real-time search functionality querying the Spotify database for albums.
+* **Responsive Architecture:** Built with a modern Sidebar layout and dynamic routing using React Router.
 
-## React Compiler
+## 🛠️ Tech Stack
+* **Frontend:** React, HTML5, Vanilla CSS
+* **Build Tool:** Vite
+* **Routing:** React Router v6
+* **API Integration:** `@spotify/web-api-ts-sdk`
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 🚀 Getting Started
 
-Note: This will impact Vite dev & build performances.
+### Prerequisites
+1. You will need a Spotify account.
+2. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create an app.
+3. Set the Redirect URI in your Spotify app settings to: `http://127.0.0.1:5173/callback`
+4. Copy your **Client ID**.
 
-## Expanding the ESLint configuration
+### Installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Clone the repository and navigate into the folder:
+```bash
+git clone <your-repo-url>
+cd album-finder
+```
+
+2. Install the dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env.local` file in the root directory and add your Client ID:
+```env
+VITE_SPOTIFY_CLIENT_ID=your_client_id_here
+```
+
+4. Start the development server:
+```bash
+npm run dev
+```
+
+5. Open your browser and navigate to `http://127.0.0.1:5173` to start using the app!
