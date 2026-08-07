@@ -1,0 +1,371 @@
+/* 1. The Global Layout */
+main {
+  /* Spotify's signature dark background color */
+  background-color: #121212;
+  color: white;
+  min-height: 100vh;
+  /* Make sure it takes up the full screen height */
+  padding: 40px;
+  font-family: 'Inter', system-ui, sans-serif;
+  /* A clean, modern font */
+}
+
+/* 2. The CSS Grid */
+.artist-grid {
+  display: grid;
+  /* This is pure magic: it creates responsive columns that are at least 180px wide, 
+     and stretches to fill the space. No media queries needed! */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+  /* Space between the cards */
+  margin-top: 20px;
+}
+
+/* 3. The Artist Card */
+.artist-card {
+  background-color: #181818;
+  padding: 16px;
+  border-radius: 8px;
+  /* Flexbox to stack the image and text vertically */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Smooth animation for when we hover over it */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+/* 4. The Hover Effect */
+.artist-card:hover {
+  background-color: #282828;
+  /* Slightly lighter on hover */
+  transform: translateY(-5px);
+  /* Make it "pop" up slightly */
+}
+
+/* 5. The Artist Image */
+.artist-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  /* Makes the image a perfect circle, like Spotify! */
+  object-fit: cover;
+  /* Ensures the image doesn't stretch weirdly */
+  margin-bottom: 16px;
+  /* Add a subtle dark shadow behind the image */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.artist-name {
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* ========================================================
+   FUTURE COMPONENTS (Based on Roadmap)
+   ======================================================== */
+
+/* --------------------------------------------------------
+   Phase 3: Top Tracks & Recently Played List
+   Use these for displaying songs in a list format
+   -------------------------------------------------------- */
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Small gap between rows */
+  margin-top: 20px;
+}
+
+/* Container for a single song */
+.track-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.track-row:hover {
+  background-color: #2a2a2a; /* Highlight row on hover */
+}
+
+/* Square album art for the song */
+.track-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  object-fit: cover;
+  margin-right: 16px;
+}
+
+/* Wrapper for the song title and artist name */
+.track-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.track-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.track-artist {
+  font-size: 14px;
+  color: #b3b3b3; /* Spotify's classic grey for subtext */
+}
+
+/* --------------------------------------------------------
+   Phase 4: Search & Album Finder
+   Use these for the search bar and album results
+   -------------------------------------------------------- */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+/* The actual search input box */
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 14px 24px;
+  border-radius: 500px; /* Pill shape */
+  border: none;
+  background-color: #242424;
+  color: white;
+  font-size: 16px;
+  transition: box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  /* Add a glowing white border when typing */
+  box-shadow: 0 0 0 2px white; 
+}
+
+/* Use this instead of .artist-card for Albums */
+.album-card {
+  background-color: #181818;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.album-card:hover {
+  background-color: #282828;
+}
+
+/* Square image for albums (unlike round artist images) */
+.album-image {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Keeps it perfectly square */
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.album-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+  /* Prevent super long titles from breaking the card */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-year {
+  font-size: 14px;
+  color: #b3b3b3;
+}
+
+/* --------------------------------------------------------
+   Phase 5: The Web Playback SDK (Music Player)
+   Use these when you build the sticky player at the bottom
+   -------------------------------------------------------- */
+.player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background-color: #181818;
+  border-top: 1px solid #282828;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100; /* Ensure it stays on top of lists */
+}
+
+/* A cool button specifically for Play/Pause */
+.play-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: white; /* Contrast color */
+  border: none;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.play-button:hover {
+  transform: scale(1.05); /* Slight pop when hovering */
+}
+
+/* --------------------------------------------------------
+   Phase 2: Profile Header
+   Use these for the user's profile picture and name at the top
+   -------------------------------------------------------- */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.profile-avatar {
+  width: 96px; /* Big profile picture */
+  height: 96px;
+  border-radius: 50%; /* Perfect circle */
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.profile-name {
+  font-size: 32px; /* Large, bold text */
+  font-weight: 800;
+  margin: 0;
+}
+
+/* ========================================================
+   Phase 6: Application Layout & Sidebar
+   Use these when setting up React Router!
+   ======================================================== */
+
+/* Wraps the entire application */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden; /* Prevent the whole page from scrolling */
+}
+
+/* The left navigation menu */
+.sidebar {
+  width: 240px;
+  background-color: #000000; /* Spotify's sidebar is pure black */
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* The links inside the sidebar */
+.sidebar-link {
+  color: #b3b3b3; /* Grey text */
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 700;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-link:hover {
+  color: white;
+}
+
+/* The right side where your components will render */
+.main-content {
+  flex: 1; /* Takes up all remaining horizontal space */
+  background-color: #121212;
+  padding: 40px;
+  padding-bottom: 120px; /* Leave space for the music player later! */
+  overflow-y: auto; /* Allow this section to scroll independently */
+}
+
+/* ========================================================
+   Phase 7: Detail Pages (Artist, Album, Track)
+   ======================================================== */
+
+/* The big banner at the top of detail pages */
+.hero-banner {
+  display: flex;
+  align-items: flex-end; /* Align content to the bottom of the banner */
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #282828;
+  margin-bottom: 32px;
+}
+
+.hero-image {
+  width: 232px;
+  height: 232px;
+  box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+}
+
+/* Add this class ALONG WITH .hero-image for Artist pages */
+.hero-image-circle {
+  border-radius: 50%;
+}
+
+.hero-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-type {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-size: 72px; /* Massive text! */
+  font-weight: 900;
+  margin: 8px 0;
+  line-height: 1;
+}
+
+/* For the statistics section on the Track page */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.stat-card {
+  background-color: #181818;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1db954; /* Spotify green */
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #b3b3b3;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
