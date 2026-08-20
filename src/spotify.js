@@ -8,7 +8,9 @@ const redirectUri = "http://127.0.0.1:5173/callback";
 const scopes = [
     "user-top-read",           // To get top artists/tracks
     "user-read-recently-played", // To get recent history
-    "user-library-read"        // To read their saved albums
+    "user-library-read",       // To read their saved albums
+    "playlist-modify-private", // To create private playlists
+    "playlist-modify-public"   // To create public playlists
 ];
 
 // We initialize the API and export it so other files (like App.jsx) can use it

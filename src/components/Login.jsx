@@ -2,7 +2,7 @@ export default function Login({ onLogin }) {
   return (
     <button
       type="button"
-      className='button-icon'
+      className='login-button'
       onClick={onLogin}>
       Login with Spotify
     </button>
