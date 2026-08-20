@@ -80,7 +80,7 @@ export default function ArtistDetails() {
       // Flatten the array of arrays into a single list of tracks
       let allTracks = allAlbumsTracksArrays.flat();
 
-      // FILTER OUT LIVE VERSIONS AND DEDUPLICATE SONGS
+      // FILTER OUT LIVE VERSIONS, GUEST FEATURES, AND DEDUPLICATE SONGS
       const liveRegex = /\b(?:Live|Live Version)\b/i;
       const uniqueTracks = [];
       const seenTrackNames = new Set();
@@ -88,8 +88,9 @@ export default function ArtistDetails() {
       for (const track of allTracks) {
         const isTrackLive = liveRegex.test(track.name);
         const isAlbumLive = liveRegex.test(track.album.name);
+        const isPrimaryArtist = track.artists[0].id === artist.id;
         
-        if (!isTrackLive && !isAlbumLive) {
+        if (!isTrackLive && !isAlbumLive && isPrimaryArtist) {
           // Clean the track name to strip out "(Remastered)", "- 2011 Mix", etc.
           const cleanTrackName = track.name.toLowerCase()
             .replace(/- .*?(remaster|mix|edit).*?/i, "")
@@ -249,7 +250,7 @@ export default function ArtistDetails() {
                     )}
                     <div className="track-info">
                       <h3 className="track-title">{track.name}</h3>
-                      <span className="track-artist">{track.artists[0].name}</span>
+                      <span className="track-artist">{track.artists.map(a => a.name).join(", ")}</span>
                     </div>
                   </Link>
                 ))}
@@ -273,7 +274,7 @@ export default function ArtistDetails() {
                 )}
                 <div className="track-info">
                   <h3 className="track-title">{track.name}</h3>
-                  <span className="track-artist">{track.artists[0].name}</span>
+                  <span className="track-artist">{track.artists.map(a => a.name).join(", ")}</span>
                 </div>
               </Link>
             ))}
