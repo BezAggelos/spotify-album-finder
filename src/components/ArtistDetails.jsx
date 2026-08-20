@@ -33,52 +33,39 @@ export default function ArtistDetails() {
       const userProfile = await spotify.currentUser.profile();
       const userMarket = userProfile.country || "US";
 
-      // 1. Fetch ALL albums, singles, and compilations
-      let allAlbums = [];
-      // We fetch everything so we don't miss bizarrely categorized albums
-      let nextUrl = `https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single,compilation&market=${userMarket}`;
-
-      while (nextUrl) {
-        const res = await fetch(nextUrl, { headers: { Authorization: `Bearer ${token.access_token}` } });
-        if (!res.ok) {
-          console.error("Failed to fetch albums page:", await res.text());
-          break;
-        }
-        const data = await res.json();
-        allAlbums = [...allAlbums, ...data.items];
-        nextUrl = data.next; // Spotify provides the exact URL for the next page!
-      }
-
-      // Deduplicate albums by name (just in case the market filter still returns Deluxe and Standard duplicates)
-      const uniqueAlbums = [];
-      const seenNames = new Set();
-      for (const album of allAlbums) {
-        const cleanName = album.name.toLowerCase().replace(/ \(.*?\)/g, "").trim();
-        if (!seenNames.has(cleanName)) {
-          seenNames.add(cleanName);
-          uniqueAlbums.push(album);
-        }
-      }
-
-      // 2. Fetch tracks for all unique albums (using raw fetch to handle track pagination too)
-      const trackPromises = uniqueAlbums.map(async (album) => {
-        let albumTracks = [];
-        let nextTrackUrl = `https://api.spotify.com/v1/albums/${album.id}/tracks?market=${userMarket}`;
-        while (nextTrackUrl) {
-          const res = await fetch(nextTrackUrl, { headers: { Authorization: `Bearer ${token.access_token}` } });
-          if (!res.ok) break;
-          const data = await res.json();
-          albumTracks = [...albumTracks, ...data.items];
-          nextTrackUrl = data.next;
-        }
-        // Map the album info directly onto each track
-        return albumTracks.map(track => ({ ...track, album: album }));
-      });
-
-      const allAlbumsTracksArrays = await Promise.all(trackPromises);
+      // 1. Get total number of tracks for this artist using Search API
+      const query = encodeURIComponent(`artist:"${artist.name}"`);
+      const searchUrl = `https://api.spotify.com/v1/search?q=${query}&type=track&limit=1&market=${userMarket}`;
+      const searchRes = await fetch(searchUrl, { headers: { Authorization: `Bearer ${token.access_token}` } });
       
-      // Flatten the array of arrays into a single list of tracks
-      let allTracks = allAlbumsTracksArrays.flat();
+      if (!searchRes.ok) {
+        throw new Error("Failed to search artist tracks: " + await searchRes.text());
+      }
+      
+      const searchData = await searchRes.json();
+      // Spotify's Search API limits pagination offset to 1000 max
+      const totalTracks = Math.min(searchData.tracks.total, 1000); 
+
+      // 2. Fetch a few random pages of 10 tracks to create a diverse pool of songs
+      let allTracks = [];
+      // We'll fetch up to 8 random pages (80 tracks total) to pick from
+      const numPagesToFetch = totalTracks > 80 ? 8 : Math.ceil(totalTracks / 10);
+      
+      for (let i = 0; i < numPagesToFetch; i++) {
+        // Generate a random offset (0 to totalTracks - 10)
+        const randomOffset = Math.floor(Math.random() * Math.max(1, totalTracks - 10));
+        const pageUrl = `https://api.spotify.com/v1/search?q=${query}&type=track&limit=10&offset=${randomOffset}&market=${userMarket}`;
+        
+        const pageRes = await fetch(pageUrl, { headers: { Authorization: `Bearer ${token.access_token}` } });
+        if (pageRes.ok) {
+          const pageData = await pageRes.json();
+          if (pageData.tracks && pageData.tracks.items) {
+            allTracks = [...allTracks, ...pageData.tracks.items];
+          }
+        } else {
+          console.error(`Search API Error (Offset ${randomOffset}):`, await pageRes.text());
+        }
+      }
 
       // FILTER OUT LIVE VERSIONS, GUEST FEATURES, AND DEDUPLICATE SONGS
       const liveRegex = /\b(?:Live|Live Version)\b/i;

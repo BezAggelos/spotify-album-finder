@@ -7,7 +7,7 @@ import AlbumDetails from "./AlbumDetails.jsx";
 import TrackDetails from "./TrackDetails.jsx";
 import RightSidebar from "./RightSidebar.jsx";
 import Player from "./Player.jsx";
-import { BrowserRouter, Routes, Link, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Link, Route, Navigate } from "react-router-dom";
 
 export default function Dashboard() {
 
@@ -43,6 +43,7 @@ export default function Dashboard() {
             <Route path="/artist/:id" element={<ArtistDetails />} />
             <Route path="/album/:id" element={<AlbumDetails />} />
             <Route path="/track/:id" element={<TrackDetails />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
 
