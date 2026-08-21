@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { spotify } from "../spotify.js";
+import TrackRow from "./TrackRow";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -9,33 +10,17 @@ export default function Profile() {
 
   useEffect(() => {
     const getData = async () => {
-      // 1. Fetch Profile Data
-      try {
-        const userProfile = await spotify.currentUser.profile();
-        setProfile(userProfile);
-      } catch (err) {
-        console.error("Failed to load profile", err);
-      }
-
-      // 2. Fetch Recently Played Tracks
-      try {
-        const recent = await spotify.player.getRecentlyPlayedTracks(5);
-        if (recent && recent.items) {
-          setRecentTracks(recent.items);
-        }
-      } catch (err) {
-        console.error("Recently played restricted by API", err);
-      }
-
-      // 3. Fetch Saved Albums
-      try {
-        const albumsData = await spotify.currentUser.albums.savedAlbums(4);
-        if (albumsData && albumsData.items) {
-          setSavedAlbums(albumsData.items);
-        }
-      } catch (err) {
-        console.error("Saved albums restricted by API", err);
-      }
+      Promise.allSettled([
+        spotify.currentUser.profile().then(res => setProfile(res)),
+        spotify.player.getRecentlyPlayedTracks(5).then(res => res?.items && setRecentTracks(res.items)),
+        spotify.currentUser.albums.savedAlbums(4).then(res => res?.items && setSavedAlbums(res.items))
+      ]).then(results => {
+        results.forEach((res, i) => {
+          if (res.status === 'rejected') {
+            console.error(`Failed to load data for section ${i}`, res.reason);
+          }
+        });
+      });
     }
     getData();
   }, [])
@@ -70,29 +55,9 @@ export default function Profile() {
             <>
               <h2 style={{ marginTop: '40px', marginBottom: '16px' }}>Recently Played</h2>
               <div className="track-list">
-                {recentTracks.map((item, index) => {
-                  const track = item.track;
-                  // Use index as fallback key because you can play the same track twice in a row!
-                  return (
-                    <Link
-                      className="track-row"
-                      key={`${track.id}-${index}`}
-                      to={`/track/${track.id}`}
-                    >
-                      {track.album.images?.[0]?.url && (
-                        <img
-                          src={track.album.images[0].url}
-                          alt={track.name}
-                          className="track-image"
-                        />
-                      )}
-                      <div className="track-info">
-                        <h3 className="track-title">{track.name}</h3>
-                        <span className="track-artist">{track.artists[0].name}</span>
-                      </div>
-                    </Link>
-                  )
-                })}
+                {recentTracks.map((item, index) => (
+                  <TrackRow key={`${item.track.id}-${index}`} track={item.track} index={index} />
+                ))}
               </div>
             </>
           )}

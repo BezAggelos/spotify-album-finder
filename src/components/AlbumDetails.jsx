@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { spotify } from "../spotify";
+import TrackRow from "./TrackRow";
 
 export default function AlbumDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [album, setAlbum] = useState(null);
   const [tracks, setTracks] = useState([]);
 
@@ -19,6 +21,9 @@ export default function AlbumDetails() {
 
   return (
     <>
+      <button onClick={() => navigate(-1)} className="login-button" style={{ marginBottom: "16px", padding: "8px 16px", background: "#333", color: "white" }}>
+        ← Back
+      </button>
       {album ? (
         <>
           <div className="hero-banner">
@@ -36,21 +41,7 @@ export default function AlbumDetails() {
             </div>
           </div>
           {tracks.map(track => (
-            <Link
-              key={track.id}
-              to={`/track/${track.id}`}
-              className="track-row"
-            >
-              <img
-                src={album.images[0].url}
-                alt={track.name}
-                className="track-image"
-              />
-              <div className="track-info">
-                <h3 className="track-title">{track.name}</h3>
-                <span className="track-artist">{track.artists[0].name}</span>
-              </div>
-            </Link>
+            <TrackRow key={track.id} track={track} customImageUrl={album.images?.[0]?.url} />
           ))}
         </>
       ) : (

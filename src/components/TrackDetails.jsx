@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { spotify } from "../spotify";
 
 export default function TrackDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [track, setTrack] = useState(null);
+
 
   useEffect(() => {
     const getTrack = async () => {
@@ -14,8 +16,19 @@ export default function TrackDetails() {
     getTrack();
   }, []);
 
+  const formatDuration = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+
   return (
     <>
+      <button onClick={() => navigate(-1)} className="login-button" style={{ marginBottom: "16px", padding: "8px 16px", background: "#333", color: "white" }}>
+        ← Back
+      </button>
       {track ? (
         <>
           <div className="hero-banner">
@@ -36,12 +49,12 @@ export default function TrackDetails() {
 
             {/* Stat Card 1: Popularity */}
             <div className="stat-card">
-              <span className="stat-value">{track.popularity}%</span>
+              <span className="stat-value">{track.popularity || "N/A"}%</span>
               <span className="stat-label">Popularity</span>
             </div>
             {/* Stat Card 2: Duration */}
             <div className="stat-card">
-              <span className="stat-value">{track.duration_ms}</span>
+              <span className="stat-value">{formatDuration(track.duration_ms)}</span>
               <span className="stat-label">Duration</span>
             </div>
             {/* Stat Card 3: Explicit */}
@@ -49,6 +62,16 @@ export default function TrackDetails() {
               <span className="stat-value">{track.explicit ? "Yes" : "No"}</span>
               <span className="stat-label">Explicit</span>
             </div>
+          </div>
+          <div style={{ marginTop: "32px" }}>
+            <iframe
+              src={`https://open.spotify.com/embed/track/${track.id}`}
+              width="100%"
+              height="152"
+              frameBorder="0"
+              allow="encrypted-media"
+              style={{ borderRadius: "12px" }}
+            ></iframe>
           </div>
         </>
       ) : (
