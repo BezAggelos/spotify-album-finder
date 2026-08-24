@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { spotify } from "../spotify";
+import SkeletonLoader from "./SkeletonLoader";
 
 export default function TrackDetails() {
   const { id } = useParams();
@@ -75,7 +76,7 @@ export default function TrackDetails() {
           </div>
         </>
       ) : (
-        <p>Loading...</p>
+        <SkeletonLoader type="hero-square" />
       )}
     </>
   )

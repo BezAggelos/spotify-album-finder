@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { spotify } from "../spotify";
 import TrackRow from "./TrackRow";
+import SkeletonLoader from "./SkeletonLoader";
 
 export default function AlbumDetails() {
   const { id } = useParams();
@@ -45,7 +46,11 @@ export default function AlbumDetails() {
           ))}
         </>
       ) : (
-        <p>Loading...</p>
+        <>
+          <SkeletonLoader type="hero-square" />
+          <h2 style={{ marginTop: '40px', marginBottom: '16px' }}>Tracks</h2>
+          <SkeletonLoader type="track-list" />
+        </>
       )}
     </>
   )

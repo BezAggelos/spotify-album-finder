@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { spotify } from "../spotify";
 import TrackRow from "./TrackRow";
+import SkeletonLoader from "./SkeletonLoader";
 
 export default function TopTracks() {
   const [topTracks, setTopTracks] = useState([]);
@@ -16,11 +17,15 @@ export default function TopTracks() {
   return (
     <>
       <h3>Top Tracks:</h3>
-      <div className="track-list">
-        {topTracks.map(track => (
-          <TrackRow key={track.id} track={track} />
-        ))}
-      </div>
+      {topTracks.length > 0 ? (
+        <div className="track-list">
+          {topTracks.map(track => (
+            <TrackRow key={track.id} track={track} />
+          ))}
+        </div>
+      ) : (
+        <SkeletonLoader type="track-list" />
+      )}
     </>
   );
 }

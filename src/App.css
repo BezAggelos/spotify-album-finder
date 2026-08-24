@@ -623,3 +623,86 @@ body {
 .login-button:active {
   transform: scale(0.98);
 }
+
+/* ========================================================
+   SKELETON LOADERS
+   ======================================================== */
+.skeleton {
+  background: linear-gradient(90deg, #181818 25%, #282828 50%, #181818 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.skeleton-text-short {
+  width: 60%;
+}
+
+.skeleton-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+.skeleton-hero-image {
+  width: 232px;
+  height: 232px;
+  border-radius: 8px;
+}
+.skeleton-hero-image.circle {
+  border-radius: 50%;
+}
+.skeleton-hero-info {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+}
+.skeleton-hero-title {
+  height: 72px;
+  width: 100%;
+  margin: 8px 0;
+  border-radius: 8px;
+}
+.skeleton-hero-subtitle {
+  height: 20px;
+  width: 150px;
+}
+
+.skeleton-track-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  margin-bottom: 4px;
+}
+.skeleton-track-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  margin-right: 16px;
+}
+.skeleton-track-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+.skeleton-track-title {
+  height: 16px;
+  width: 200px;
+  margin-bottom: 6px;
+}
+.skeleton-track-artist {
+  height: 12px;
+  width: 120px;
+}

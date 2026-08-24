@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { spotify } from "../spotify.js";
 import TrackRow from "./TrackRow";
+import SkeletonLoader from "./SkeletonLoader";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -90,7 +91,11 @@ export default function Profile() {
           )}
         </>
       ) : (
-        <p>Loading Profile Dashboard...</p>
+        <>
+          <SkeletonLoader type="hero-circle" />
+          <h2 style={{ marginTop: '40px', marginBottom: '16px' }}>Recently Played</h2>
+          <SkeletonLoader type="track-list" />
+        </>
       )}
     </>
   );

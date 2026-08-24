@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { spotify } from "../spotify";
 import TrackRow from "./TrackRow";
+import SkeletonLoader from "./SkeletonLoader";
 import { getRandomArtistTracks } from "../utils/spotifyRandomizer";
 
 
@@ -165,7 +166,11 @@ export default function ArtistDetails() {
           </div>
         </>
       ) : (
-        <p>Loading...</p>
+        <>
+          <SkeletonLoader type="hero-circle" />
+          <h2 style={{ marginTop: '40px', marginBottom: '16px' }}>Top Tracks</h2>
+          <SkeletonLoader type="track-list" />
+        </>
       )}
     </>
   )
