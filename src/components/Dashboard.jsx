@@ -5,8 +5,8 @@ import Search from "./Search.jsx";
 import ArtistDetails from "./ArtistDetails.jsx";
 import AlbumDetails from "./AlbumDetails.jsx";
 import TrackDetails from "./TrackDetails.jsx";
-import RightSidebar from "./RightSidebar.jsx";
 import Player from "./Player.jsx";
+import Header from "./Header.jsx";
 import { BrowserRouter, Routes, Link, Route, Navigate } from "react-router-dom";
 
 export default function Dashboard() {
@@ -28,13 +28,10 @@ export default function Dashboard() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
             Top Tracks
           </Link>
-          <Link to="/search" className="sidebar-link">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            Search
-          </Link>
         </div>
 
         <div className="main-content">
+          <Header />
           <Routes>
             <Route path="/" element={<Profile />} />
             <Route path="/top-artists" element={<TopArtists />} />
@@ -47,8 +44,6 @@ export default function Dashboard() {
           </Routes>
         </div>
 
-        {/* The New Static Right Sidebar Placeholder */}
-        <RightSidebar />
       </div>
 
       {/* The New Static Music Player Placeholder */}

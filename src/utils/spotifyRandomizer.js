@@ -45,10 +45,11 @@ export const getRandomArtistTracks = async (artist, token, userMarket) => {
     
     if (!isTrackLive && !isAlbumLive && isPrimaryArtist) {
       // Clean the track name to strip out "(Remastered)", "- 2011 Mix", etc.
+      // We no longer blindly strip all parentheses, so tracks like "(Acoustic)" 
+      // or "(Alive in the Catacombs)" are treated as distinct, awesome alternate versions!
       const cleanTrackName = track.name.toLowerCase()
         .replace(/- .*?(remaster|mix|edit).*?/i, "")
         .replace(/\(.*?(remaster|mix|edit).*?\)/i, "")
-        .replace(/ \(.*?\)/g, "") // Strip anything else in parentheses just in case
         .trim();
 
       if (!seenTrackNames.has(cleanTrackName)) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { spotify } from "../spotify";
 import TrackRow from "./TrackRow";
 import SkeletonLoader from "./SkeletonLoader";
@@ -11,6 +11,7 @@ export default function ArtistDetails() {
   const navigate = useNavigate();
   const [artist, setArtist] = useState(null);
   const [topTracks, setTopTracks] = useState([]);
+  const [albums, setAlbums] = useState([]);
   const [numRandom, setNumRandom] = useState(10);
   const [randomTracks, setRandomTracks] = useState([]);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
@@ -18,14 +19,29 @@ export default function ArtistDetails() {
   const [fallbackUris, setFallbackUris] = useState("");
 
   useEffect(() => {
+    // Reset state when navigating to a new artist
+    setArtist(null);
+    setRandomTracks([]);
+    setFallbackUris("");
+
     const getArtistsDetails = async () => {
-      const artistsData = await spotify.artists.get(id);
-      const searchResults = await spotify.search(`artist:${artistsData.name}`, ["track"]);
-      setArtist(artistsData);
-      setTopTracks({ tracks: searchResults.tracks.items });
+      try {
+        const artistsData = await spotify.artists.get(id);
+        // Wrap artist name in quotes and pass a limit of 10 to ensure we get enough results
+        const searchResults = await spotify.search(`artist:"${artistsData.name}"`, ["track"], "US", 10);
+
+        // Fetch Albums
+        const albumsData = await spotify.artists.albums(id, "album,single");
+
+        setArtist(artistsData);
+        setTopTracks({ tracks: searchResults.tracks.items });
+        setAlbums(albumsData.items.slice(0, 12)); // Take up to 12
+      } catch (error) {
+        console.error("Failed to load artist details:", error);
+      }
     }
     getArtistsDetails();
-  }, [])
+  }, [id])
 
   const handleGetRandomSongs = async () => {
     if (!artist) return;
@@ -60,7 +76,7 @@ export default function ArtistDetails() {
     setIsCreatingPlaylist(true);
     try {
       const user = await spotify.currentUser.profile();
-      
+
       const playlist = await spotify.playlists.createPlaylist(user.id, {
         name: `Random: ${artist.name}`,
         description: `Generated ${numRandom} random tracks from ${artist.name}'s full discography.`,
@@ -104,6 +120,7 @@ export default function ArtistDetails() {
           {/* Randomizer UI */}
           <div style={{ margin: "32px 0", padding: "24px", backgroundColor: "#181818", borderRadius: "8px" }}>
             <h3>Get Random Songs</h3>
+
             <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
               <input
                 type="number"
@@ -122,10 +139,10 @@ export default function ArtistDetails() {
             {randomTracks.length > 0 && (
               <div className="track-list" style={{ marginTop: 0 }}>
                 <div style={{ marginBottom: "16px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px" }}>
-                  <button 
-                    onClick={handleCreatePlaylist} 
-                    className="login-button" 
-                    style={{ padding: "8px 24px", opacity: isCreatingPlaylist ? 0.7 : 1 }} 
+                  <button
+                    onClick={handleCreatePlaylist}
+                    className="login-button"
+                    style={{ padding: "8px 24px", opacity: isCreatingPlaylist ? 0.7 : 1 }}
                     disabled={isCreatingPlaylist}
                   >
                     {isCreatingPlaylist ? "Creating..." : "Save as Playlist"}
@@ -143,10 +160,10 @@ export default function ArtistDetails() {
                     <p style={{ fontSize: "14px", color: "#b3b3b3", marginBottom: "8px" }}>
                       Spotify blocked the automatic playlist creation. But you can still create it manually in 5 seconds! Open a new playlist in your Spotify Desktop app, copy all the text below, and hit <b>Ctrl+V</b> inside the playlist.
                     </p>
-                    <textarea 
-                      readOnly 
-                      value={fallbackUris} 
-                      style={{ width: "100%", height: "100px", backgroundColor: "#000", color: "#1DB954", padding: "8px", borderRadius: "4px", border: "1px solid #282828", fontFamily: "monospace" }} 
+                    <textarea
+                      readOnly
+                      value={fallbackUris}
+                      style={{ width: "100%", height: "100px", backgroundColor: "#000", color: "#1DB954", padding: "8px", borderRadius: "4px", border: "1px solid #282828", fontFamily: "monospace" }}
                       onClick={(e) => e.target.select()}
                     />
                   </div>
@@ -160,9 +177,35 @@ export default function ArtistDetails() {
           </div>
 
           <div className="track-list">
-            {topTracks.tracks.map(track => (
-              <TrackRow key={track.id} track={track} />
+            <h2 style={{ marginTop: '24px', marginBottom: '16px' }}>Top Tracks</h2>
+            {topTracks.tracks?.slice(0, 5).map((track, index) => (
+              <TrackRow key={track.id} track={track} index={index + 1} />
             ))}
+          </div>
+
+          {/* Albums Section */}
+          <div style={{ marginTop: "48px" }}>
+            <h2 style={{ marginBottom: '24px' }}>Albums & Singles</h2>
+            {albums.length > 0 ? (
+              <div className="artist-grid">
+                {albums.map((album) => (
+                  <Link to={`/album/${album.id}`} key={album.id} className="album-card">
+                    {album.images?.[0]?.url && (
+                      <img src={album.images[0].url} alt={album.name} className="album-image" />
+                    )}
+                    <div className="play-btn" onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      spotify.player.startResumePlayback("", album.uri).catch(err => console.error(err));
+                    }}>▶</div>
+                    <h3 className="album-title">{album.name}</h3>
+                    <p className="album-year">{album.release_date?.substring(0, 4)} • {album.album_type === 'single' ? 'Single' : 'Album'}</p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: "#b3b3b3" }}>No albums found.</p>
+            )}
           </div>
         </>
       ) : (

@@ -18,8 +18,13 @@ function App() {
       const token = await spotify.getAccessToken();
 
       if (hasCode) {
-        await spotify.authenticate();
-        setIsLoggedIn(true);
+        try {
+          await spotify.authenticate();
+          setIsLoggedIn(true);
+        } catch (err) {
+          console.error("Authentication failed (likely a stale code in URL), clearing URL.", err);
+          window.history.replaceState({}, document.title, "/");
+        }
       } else if (token) {
         setIsLoggedIn(true);
       }

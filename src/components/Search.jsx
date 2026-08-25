@@ -1,52 +1,127 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { spotify } from "../spotify";
-import { Link } from "react-router-dom";
+import TrackRow from "./TrackRow";
+import SkeletonLoader from "./SkeletonLoader";
 
 export default function Search() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [albums, setAlbums] = useState([]);
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  
+  const [results, setResults] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSearch(event) {
-    setSearchQuery(event.target.value);
-  }
+  useEffect(() => {
+    if (!query) {
+      setResults(null);
+      return;
+    }
 
-  const getAlbums = async () => {
-    const results = await spotify.search(searchQuery, ["album"]);
-    setAlbums(results.albums.items);
+    const fetchResults = async () => {
+      setIsLoading(true);
+      try {
+        // Search across albums, artists, and tracks (default limit is used to avoid SDK errors)
+        const searchResults = await spotify.search(query, ["album", "artist", "track"]);
+        setResults(searchResults);
+      } catch (error) {
+        console.error("Search failed:", error);
+      }
+      setIsLoading(false);
+    };
+
+    // Debounce the live search slightly so we don't spam the API while typing
+    const timerId = setTimeout(() => {
+      fetchResults();
+    }, 300);
+
+    return () => clearTimeout(timerId);
+  }, [query]);
+
+  if (!query) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "100px", color: "#b3b3b3" }}>
+        <h2>Play what you love</h2>
+        <p>Search for artists, songs, or albums.</p>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="search-container">
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search for an album..."
-          value={searchQuery}
-          onChange={handleSearch}
-        />
-        <button type="submit" onClick={getAlbums}>Search</button>
-      </div>
-      {albums &&
-        <div className="artist-grid">
-          {albums.map(album => (
-            <Link
-              className="album-card"
-              key={album.id}
-              to={`/album/${album.id}`}
-            >
-              {album.images?.[0]?.url && (
-                <img src={album.images[0].url} alt={album.name} className='album-image' />
-              )}
-              <div className="play-btn">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z"></path></svg>
+    <div className="search-results">
+      <h2 style={{ marginBottom: "24px" }}>Search results for "{query}"</h2>
+
+      {isLoading && !results ? (
+        <>
+          <h3 style={{ marginBottom: "16px" }}>Songs</h3>
+          <SkeletonLoader type="track-list" />
+          <h3 style={{ marginTop: "32px", marginBottom: "16px" }}>Artists</h3>
+          <div className="artist-grid">
+            <SkeletonLoader type="hero-circle" />
+            <SkeletonLoader type="hero-circle" />
+            <SkeletonLoader type="hero-circle" />
+          </div>
+        </>
+      ) : results ? (
+        <>
+          {/* Tracks Section */}
+          {results.tracks?.items?.length > 0 && (
+            <div style={{ marginBottom: "48px" }}>
+              <h3 style={{ marginBottom: "16px" }}>Songs</h3>
+              <div className="track-list">
+                {results.tracks.items.slice(0, 5).map(track => (
+                  <TrackRow key={track.id} track={track} />
+                ))}
               </div>
-              <h3 className='album-title'>{album.name}</h3>
-              <span className='album-year'>{album.release_date.slice(0, 4)}</span>
-            </Link>
-          ))}
-        </div>
-      }
-    </>
+            </div>
+          )}
+
+          {/* Artists Section */}
+          {results.artists?.items?.length > 0 && (
+            <div style={{ marginBottom: "48px" }}>
+              <h3 style={{ marginBottom: "16px" }}>Artists</h3>
+              <div className="artist-grid">
+                {results.artists.items.slice(0, 6).map(artist => (
+                  <Link to={`/artist/${artist.id}`} key={artist.id} className="artist-card">
+                    {artist.images?.[0]?.url ? (
+                      <img src={artist.images[0].url} alt={artist.name} className="artist-image" />
+                    ) : (
+                      <div className="artist-image" style={{ backgroundColor: "#282828" }}></div>
+                    )}
+                    <h3 className="artist-name" style={{ textAlign: "center" }}>{artist.name}</h3>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Albums Section */}
+          {results.albums?.items?.length > 0 && (
+            <div style={{ marginBottom: "48px" }}>
+              <h3 style={{ marginBottom: "16px" }}>Albums</h3>
+              <div className="artist-grid">
+                {results.albums.items.slice(0, 6).map(album => (
+                  <Link to={`/album/${album.id}`} key={album.id} className="album-card">
+                    {album.images?.[0]?.url && (
+                      <img src={album.images[0].url} alt={album.name} className="album-image" />
+                    )}
+                    <div className="play-btn" onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      spotify.player.startResumePlayback("", album.uri).catch(err => console.error(err));
+                    }}>▶</div>
+                    <h3 className="album-title">{album.name}</h3>
+                    <p className="album-year">{album.release_date?.substring(0, 4)} • {album.artists?.[0]?.name}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {results.tracks?.items?.length === 0 && results.artists?.items?.length === 0 && results.albums?.items?.length === 0 && (
+            <p style={{ color: "#b3b3b3" }}>No results found for "{query}".</p>
+          )}
+        </>
+      ) : null}
+    </div>
   );
 }

@@ -19,8 +19,8 @@ export default function TopTracks() {
       <h3>Top Tracks:</h3>
       {topTracks.length > 0 ? (
         <div className="track-list">
-          {topTracks.map(track => (
-            <TrackRow key={track.id} track={track} />
+          {topTracks.map((track, index) => (
+            <TrackRow key={track.id} track={track} index={index + 1} />
           ))}
         </div>
       ) : (

@@ -5,11 +5,12 @@ A web-based React application that integrates with the Spotify Web API to analyz
 Built as a personal practice project to master React hooks, component architecture, and API integration.
 
 ## ✨ Features
-* **Secure Authentication:** Uses Spotify's Authorization Code with PKCE flow for a secure, client-side login without needing a backend server.
-* **User Profile:** Fetches and displays the logged-in user's profile information and avatar.
-* **Top Artists & Tracks:** Visualizes the user's most listened to artists and tracks over the long term.
-* **Album Search:** Real-time search functionality querying the Spotify database for albums.
-* **Responsive Architecture:** Built with a modern Sidebar layout and dynamic routing using React Router.
+* **Full In-Browser Playback:** Deep integration with the Spotify Web Playback SDK allows you to stream entire tracks, albums, and artist discographies seamlessly from within the app.
+* **Wikipedia Integration:** Dynamically fetches rich background information and critical reception for albums directly from the free Wikipedia API.
+* **Interactive Player UI:** A persistent global Player bar featuring live progress tracking, volume control, and play/pause toggles.
+* **Secure Authentication:** Uses Spotify's Authorization Code with PKCE flow for secure, client-side login with robust scope management.
+* **User Profile & Stats:** Fetches and displays your most listened to artists and tracks over the long term.
+* **Catalog Exploration:** Real-time search functionality across the entire Spotify catalog with dynamic routing and detailed Artist/Album pages.
 
 ## 🛠️ Tech Stack
 * **Frontend:** React, HTML5, Vanilla CSS

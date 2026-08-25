@@ -10,7 +10,11 @@ const scopes = [
     "user-read-recently-played", // To get recent history
     "user-library-read",       // To read their saved albums
     "playlist-modify-private", // To create private playlists
-    "playlist-modify-public"   // To create public playlists
+    "playlist-modify-public",  // To create public playlists
+    "streaming",               // REQUIRED for Web Playback SDK
+    "user-read-email",         // REQUIRED for Web Playback SDK
+    "user-read-private",       // REQUIRED for Web Playback SDK
+    "user-modify-playback-state" // To transfer playback to the browser
 ];
 
 // We initialize the API and export it so other files (like App.jsx) can use it
