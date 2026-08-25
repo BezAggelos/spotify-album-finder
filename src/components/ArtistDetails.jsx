@@ -17,12 +17,14 @@ export default function ArtistDetails() {
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
   const [playlistUrl, setPlaylistUrl] = useState(null);
   const [fallbackUris, setFallbackUris] = useState("");
+  const [wikiSummary, setWikiSummary] = useState(null);
 
   useEffect(() => {
     // Reset state when navigating to a new artist
     setArtist(null);
     setRandomTracks([]);
     setFallbackUris("");
+    setWikiSummary(null);
 
     const getArtistsDetails = async () => {
       try {
@@ -36,6 +38,26 @@ export default function ArtistDetails() {
         setArtist(artistsData);
         setTopTracks({ tracks: searchResults.tracks.items });
         setAlbums(albumsData.items.slice(0, 12)); // Take up to 12
+
+        // Fetch Wiki Summary
+        try {
+          const query = encodeURIComponent(`${artistsData.name} band OR musician`);
+          const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${query}&utf8=&format=json&origin=*`;
+          const searchRes = await fetch(searchUrl);
+          const searchData = await searchRes.json();
+
+          if (searchData.query?.search?.length > 0) {
+            const title = searchData.query.search[0].title;
+            const extractUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(title)}&format=json&origin=*`;
+            const extractRes = await fetch(extractUrl);
+            const extractData = await extractRes.json();
+            const pages = extractData.query.pages;
+            const pageId = Object.keys(pages)[0];
+            setWikiSummary(pages[pageId].extract);
+          }
+        } catch (err) {
+          console.error("Wiki fetch failed", err);
+        }
       } catch (error) {
         console.error("Failed to load artist details:", error);
       }
@@ -104,12 +126,15 @@ export default function ArtistDetails() {
       {artist ? (
         <>
           <div className="hero-banner">
-            {artist.images?.[0]?.url && (
+            {artist.images[0]?.url ? (
               <img
                 src={artist.images[0].url}
                 alt={artist.name}
-                className="hero-image hero-image-circle"
+                className="hero-image"
+                style={{ borderRadius: "50%" }}
               />
+            ) : (
+              <div className="hero-image" style={{ borderRadius: "50%", backgroundColor: "#282828" }}></div>
             )}
             <div className="hero-info">
               <span className="hero-type">Artist</span>
@@ -117,6 +142,9 @@ export default function ArtistDetails() {
               <span className="hero-type">{artist.followers?.total?.toLocaleString()} Followers </span>
             </div>
           </div>
+
+
+
           {/* Randomizer UI */}
           <div style={{ margin: "32px 0", padding: "24px", backgroundColor: "#181818", borderRadius: "8px" }}>
             <h3>Get Random Songs</h3>
@@ -207,6 +235,43 @@ export default function ArtistDetails() {
               <p style={{ color: "#b3b3b3" }}>No albums found.</p>
             )}
           </div>
+
+          {wikiSummary && (
+            <div style={{ 
+              marginTop: "48px", 
+              marginBottom: "100px", 
+              padding: "40px", 
+              background: "linear-gradient(145deg, #181818 0%, #121212 100%)", 
+              borderRadius: "16px", 
+              lineHeight: "1.8", 
+              color: "#e5e5e5",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+              border: "1px solid #282828"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+                {artist.images?.[0]?.url && (
+                  <img 
+                    src={artist.images[0].url} 
+                    alt={artist.name} 
+                    style={{ width: "64px", height: "64px", borderRadius: "50%", objectFit: "cover", boxShadow: "0 4px 12px rgba(0,0,0,0.5)" }} 
+                  />
+                )}
+                <div>
+                  <h3 style={{ color: "#fff", margin: 0, fontSize: "24px", letterSpacing: "-0.5px" }}>About {artist.name}</h3>
+                  <span style={{ fontSize: "14px", color: "#1DB954", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>Wikipedia Biography</span>
+                </div>
+              </div>
+              
+              <div style={{ 
+                columnCount: wikiSummary.length > 800 ? 2 : 1, 
+                columnGap: "40px",
+                textAlign: "justify",
+                fontSize: "15px"
+              }}>
+                <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{wikiSummary}</p>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <>

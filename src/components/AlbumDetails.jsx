@@ -77,10 +77,39 @@ export default function AlbumDetails() {
             <TrackRow key={track.id} track={track} customImageUrl={album.images?.[0]?.url} />
           ))}
           {wikiSummary && (
-            <div style={{ margin: "24px 0", padding: "24px", backgroundColor: "#181818", borderRadius: "8px", lineHeight: "1.6", color: "#b3b3b3" }}>
-              <h3 style={{ color: "#fff", marginBottom: "12px" }}>About</h3>
-              <p style={{ whiteSpace: "pre-wrap" }}>{wikiSummary}</p>
-              <span style={{ display: "block", marginTop: "12px", fontSize: "12px" }}>Source: Wikipedia</span>
+            <div style={{ 
+              marginTop: "48px", 
+              marginBottom: "100px", 
+              padding: "40px", 
+              background: "linear-gradient(145deg, #181818 0%, #121212 100%)", 
+              borderRadius: "16px", 
+              lineHeight: "1.8", 
+              color: "#e5e5e5",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+              border: "1px solid #282828"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+                {album.images?.[0]?.url && (
+                  <img 
+                    src={album.images[0].url} 
+                    alt={album.name} 
+                    style={{ width: "64px", height: "64px", borderRadius: "8px", objectFit: "cover", boxShadow: "0 4px 12px rgba(0,0,0,0.5)" }} 
+                  />
+                )}
+                <div>
+                  <h3 style={{ color: "#fff", margin: 0, fontSize: "24px", letterSpacing: "-0.5px" }}>About {album.name}</h3>
+                  <span style={{ fontSize: "14px", color: "#1DB954", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>Wikipedia</span>
+                </div>
+              </div>
+              
+              <div style={{ 
+                columnCount: wikiSummary.length > 800 ? 2 : 1, 
+                columnGap: "40px",
+                textAlign: "justify",
+                fontSize: "15px"
+              }}>
+                <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{wikiSummary}</p>
+              </div>
             </div>
           )}
         </>
