@@ -45,6 +45,11 @@ body {
   height: calc(100vh - 90px);
   /* Leave exactly 90px for the player bar */
   overflow: hidden;
+  transition: padding-right 0.3s ease-in-out;
+}
+
+body.queue-open .app-layout {
+  padding-right: 400px; /* Same width as queue-panel */
 }
 
 /* Left Navigation Sidebar */

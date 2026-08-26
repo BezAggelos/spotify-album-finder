@@ -133,11 +133,24 @@ export default function Player() {
     }
   };
 
-  const fetchQueue = async () => {
+  const fetchQueue = async (currentTrackId) => {
     try {
       const q = await spotify.player.getUsersQueue();
       if (q && q.queue) {
-        setQueueItems(q.queue);
+        console.log("Raw Spotify Queue:", q.queue);
+        // Spotify API often returns duplicate playback contexts. We deduplicate by ID to clean the UI.
+        const uniqueQueue = [];
+        // Pre-seed seenIds with the currently playing track so it NEVER appears in "Next Up"
+        const seenIds = new Set(currentTrackId ? [currentTrackId] : []);
+        
+        for (const track of q.queue) {
+          if (track && track.id && !seenIds.has(track.id)) {
+            uniqueQueue.push(track);
+            seenIds.add(track.id);
+          }
+        }
+        console.log("Deduplicated Queue:", uniqueQueue);
+        setQueueItems(uniqueQueue);
       }
     } catch (err) {
       console.error("Failed to fetch queue", err);
@@ -145,10 +158,19 @@ export default function Player() {
   };
 
   useEffect(() => {
+    let timeoutId;
     if (isQueueOpen) {
-      fetchQueue();
+      // Add a slight delay to allow Spotify's backend to sync the context after a track change
+      timeoutId = setTimeout(() => {
+        fetchQueue(current_track?.id);
+      }, 700);
+      document.body.classList.add('queue-open');
+    } else {
+      document.body.classList.remove('queue-open');
     }
-  }, [isQueueOpen, current_track]);
+    
+    return () => clearTimeout(timeoutId);
+  }, [isQueueOpen, current_track?.id]);
 
   if (errorMsg) {
     return (
