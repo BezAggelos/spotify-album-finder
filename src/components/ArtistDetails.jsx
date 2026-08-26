@@ -12,7 +12,7 @@ export default function ArtistDetails() {
   const [artist, setArtist] = useState(null);
   const [topTracks, setTopTracks] = useState([]);
   const [albums, setAlbums] = useState([]);
-  const [numRandom, setNumRandom] = useState(10);
+  const [numRandom, setNumRandom] = useState("10");
   const [randomTracks, setRandomTracks] = useState([]);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
   const [playlistUrl, setPlaylistUrl] = useState(null);
@@ -85,7 +85,8 @@ export default function ArtistDetails() {
         [shuffledTracks[i], shuffledTracks[j]] = [shuffledTracks[j], shuffledTracks[i]];
       }
 
-      const selectedTracks = shuffledTracks.slice(0, numRandom);
+      const parsedNum = parseInt(numRandom, 10) || 10;
+      const selectedTracks = shuffledTracks.slice(0, parsedNum);
 
       setRandomTracks(selectedTracks);
     } catch (error) {
@@ -150,14 +151,56 @@ export default function ArtistDetails() {
             <h3>Get Random Songs</h3>
 
             <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
-              <input
-                type="number"
-                min="1"
-                max="50"
-                value={numRandom}
-                onChange={(e) => setNumRandom(Number(e.target.value))}
-                style={{ padding: "8px", borderRadius: "4px", border: "none", width: "80px" }}
-              />
+              <div style={{ display: "flex", alignItems: "center", backgroundColor: "#282828", borderRadius: "8px", border: "1px solid #333" }}>
+                <button 
+                  onClick={() => {
+                    let num = parseInt(numRandom, 10) || 10;
+                    if (num > 1) setNumRandom((num - 1).toString());
+                  }}
+                  style={{ background: "none", border: "none", color: "white", padding: "8px 12px", cursor: "pointer", fontSize: "18px" }}
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  className="no-spinners"
+                  value={numRandom}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "") {
+                      setNumRandom("");
+                    } else {
+                      const num = parseInt(val, 10);
+                      if (!isNaN(num) && num >= 1 && num <= 50) {
+                        setNumRandom(num.toString());
+                      } else if (num > 50) {
+                        setNumRandom("50");
+                      }
+                    }
+                  }}
+                  style={{ 
+                    padding: "8px 0", 
+                    width: "40px",
+                    textAlign: "center",
+                    backgroundColor: "transparent",
+                    color: "white",
+                    fontSize: "16px",
+                    border: "none",
+                    outline: "none"
+                  }}
+                />
+                <button 
+                  onClick={() => {
+                    let num = parseInt(numRandom, 10) || 10;
+                    if (num < 50) setNumRandom((num + 1).toString());
+                  }}
+                  style={{ background: "none", border: "none", color: "white", padding: "8px 12px", cursor: "pointer", fontSize: "18px" }}
+                >
+                  +
+                </button>
+              </div>
               <button onClick={handleGetRandomSongs} className="login-button" style={{ padding: "8px 24px" }}>
                 Surprise Me!
               </button>
