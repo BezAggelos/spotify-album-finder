@@ -32,6 +32,17 @@ function App() {
     checkLogin();
   }, []);
 
+  const [toastMessage, setToastMessage] = useState(null);
+
+  useEffect(() => {
+    const handleToast = (e) => {
+      setToastMessage(e.detail);
+      setTimeout(() => setToastMessage(null), 3000); // Hide after 3s
+    };
+    window.addEventListener("show-toast", handleToast);
+    return () => window.removeEventListener("show-toast", handleToast);
+  }, []);
+
   return (
     <>
       {isLoggedIn ? (
@@ -50,6 +61,13 @@ function App() {
             <Login onLogin={handleLogin} />
           </div>
         </main>
+      )}
+
+      {/* Global Toast */}
+      {toastMessage && (
+        <div className="toast-notification">
+          {toastMessage}
+        </div>
       )}
     </>
   )

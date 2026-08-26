@@ -19,6 +19,9 @@ export default function Player() {
   const [durationMs, setDurationMs] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const [isSeeking, setIsSeeking] = useState(false);
+  
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
+  const [queueItems, setQueueItems] = useState([]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -130,6 +133,23 @@ export default function Player() {
     }
   };
 
+  const fetchQueue = async () => {
+    try {
+      const q = await spotify.player.getUsersQueue();
+      if (q && q.queue) {
+        setQueueItems(q.queue);
+      }
+    } catch (err) {
+      console.error("Failed to fetch queue", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isQueueOpen) {
+      fetchQueue();
+    }
+  }, [isQueueOpen, current_track]);
+
   if (errorMsg) {
     return (
       <div className="player-bar" style={{ display: 'flex', justifyContent: 'center', color: '#ff4444' }}>
@@ -222,10 +242,60 @@ export default function Player() {
           className="progress-slider"
           style={{ 
             width: '100px',
-            background: `linear-gradient(to right, #1DB954 ${volumePercent}%, #535353 ${volumePercent}%)`
+            background: `linear-gradient(to right, #1DB954 ${volumePercent}%, #535353 ${volumePercent}%)`,
+            marginRight: '16px'
           }}
         />
+        
+        {/* Queue Toggle Button */}
+        <button 
+          onClick={() => setIsQueueOpen(!isQueueOpen)} 
+          className="control-button" 
+          style={{ color: isQueueOpen ? '#1DB954' : '#b3b3b3' }}
+          title="Queue"
+        >
+          <svg role="img" height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M15 15H1v-1.5h14V15zm0-4.5H1V9h14v1.5zm-14-7A2.5 2.5 0 0 1 3.5 1h9a2.5 2.5 0 0 1 0 5h-9A2.5 2.5 0 0 1 1 3.5zm2.5-1a1 1 0 0 0 0 2h9a1 1 0 1 0 0-2h-9z"></path>
+          </svg>
+        </button>
       </div>
+
+      {/* Sliding Queue Panel */}
+      <div className={`queue-panel ${isQueueOpen ? 'open' : ''}`}>
+        <div className="queue-header">
+          <h2 style={{ margin: 0 }}>Queue</h2>
+          <button className="queue-close-btn" onClick={() => setIsQueueOpen(false)}>×</button>
+        </div>
+
+        <div className="queue-section-title">Now Playing</div>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "32px", backgroundColor: "#282828", padding: "12px", borderRadius: "8px" }}>
+          <img src={current_track.album.images[0]?.url} alt={current_track.name} style={{ width: "48px", height: "48px", borderRadius: "4px" }} />
+          <div>
+            <div style={{ color: "#1DB954", fontWeight: "bold", fontSize: "16px" }}>{current_track.name}</div>
+            <div style={{ color: "#b3b3b3", fontSize: "14px" }}>{current_track.artists.map(a => a.name).join(', ')}</div>
+          </div>
+        </div>
+
+        <div className="queue-section-title">Next Up</div>
+        {queueItems.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {queueItems.map((track, idx) => (
+              <div key={`${track.id}-${idx}`} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                {track.album?.images?.[0]?.url && (
+                  <img src={track.album.images[0].url} alt={track.name} style={{ width: "40px", height: "40px", borderRadius: "4px" }} />
+                )}
+                <div>
+                  <div style={{ color: "white", fontSize: "15px" }}>{track.name}</div>
+                  <div style={{ color: "#b3b3b3", fontSize: "13px" }}>{track.artists?.map(a => a.name).join(', ')}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: "#b3b3b3", fontSize: "14px" }}>Your queue is empty.</p>
+        )}
+      </div>
+
     </div>
   );
 }

@@ -14,7 +14,8 @@ const scopes = [
     "streaming",               // REQUIRED for Web Playback SDK
     "user-read-email",         // REQUIRED for Web Playback SDK
     "user-read-private",       // REQUIRED for Web Playback SDK
-    "user-modify-playback-state" // To transfer playback to the browser
+    "user-modify-playback-state", // To transfer playback to the browser
+    "user-read-playback-state" // REQUIRED to read the active Queue
 ];
 
 // We initialize the API and export it so other files (like App.jsx) can use it

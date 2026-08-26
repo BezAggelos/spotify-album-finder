@@ -10,6 +10,29 @@ export default function TrackRow({ track, index, customImageUrl }) {
     spotify.player.startResumePlayback("", undefined, [track.uri]).catch(err => console.error("Playback failed:", err));
   };
 
+  const handleAddToQueue = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const token = await spotify.getAccessToken();
+      const res = await fetch(`https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(track.uri)}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      });
+      
+      if (res.ok) {
+        window.dispatchEvent(new CustomEvent("show-toast", { detail: "Added to Queue" }));
+      } else {
+        throw new Error(await res.text());
+      }
+    } catch (err) {
+      console.error("Failed to add to queue:", err);
+      window.dispatchEvent(new CustomEvent("show-toast", { detail: "Failed to add (ensure a device is active!)" }));
+    }
+  };
+
   return (
     <Link
       className="track-row"
@@ -41,6 +64,15 @@ export default function TrackRow({ track, index, customImageUrl }) {
           {Math.floor(track.duration_ms / 60000)}:{((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0')}
         </div>
       )}
+      <button 
+        onClick={handleAddToQueue} 
+        style={{ background: "transparent", border: "1px solid #b3b3b3", color: "#b3b3b3", borderRadius: "50%", width: "28px", height: "28px", cursor: "pointer", marginLeft: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", transition: "all 0.2s" }}
+        onMouseEnter={(e) => { e.target.style.color = "#fff"; e.target.style.borderColor = "#fff"; e.target.style.transform = "scale(1.1)"; }}
+        onMouseLeave={(e) => { e.target.style.color = "#b3b3b3"; e.target.style.borderColor = "#b3b3b3"; e.target.style.transform = "scale(1)"; }}
+        title="Add to Queue"
+      >
+        +
+      </button>
     </Link>
   );
 }
